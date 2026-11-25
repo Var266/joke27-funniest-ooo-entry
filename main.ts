@@ -1,25 +1,29 @@
+// funniest-ooo re-entry: a one-line out-of-office auto-reply.
+// The entry is built from three beats — a real OOO frame, a confession,
+// then the punch — so the program assembles the line instead of
+// pasting a single literal.
 import { mkdirSync, writeFileSync } from "node:fs";
 
-// The Funniest Out-of-Office: one line, at most 140 characters (the gate).
-//
-// Picked from 16 original drafts by pairwise judging against the judge's
-// brief, in its order: (1) a real one-line out-of-office reply a person
-// would actually set; (2) a genuine surprise — the "if you need me" setup
-// resolves into ignoring the reader's own email, so the twist lands on the
-// sender; (3) a voice of its own ("aggressively ignoring"); (4) fresh — no
-// "gone fishing", "limited access", or "back on Monday" cliche; (5) every
-// word earns its place — cut "exact" and the sting goes, cut
-// "aggressively" and the voice goes, cut "at the beach" and the scene goes.
-// The punchline lands on the final words: "...the exact email you just sent."
-const REPLY =
-  "Out of office. If you need me, I am the person at the beach aggressively ignoring the exact email you just sent.";
+const beats = [
+  "Out of office until Monday.",
+  "I have read your email.",
+  "I have chosen peace.",
+];
 
-if (REPLY.length < 1 || REPLY.length > 140 || REPLY.trim().length === 0) {
-  throw new Error(`out-of-office reply must be 1-140 non-whitespace characters, got ${REPLY.length}`);
+const GATE_CHARS = 140;
+
+const entry = beats.join(" ");
+
+// Fail loudly rather than silently shipping an entry the gate refuses:
+// one line, 1-140 characters, not only whitespace.
+const charCount = [...entry].length;
+if (charCount < 1 || charCount > GATE_CHARS || entry.trim().length === 0) {
+  throw new Error(`out-of-office reply must be 1-${GATE_CHARS} characters, got ${charCount}`);
 }
-if (REPLY.includes("\n") || REPLY.includes("\r")) {
+if (entry.includes("\n") || entry.includes("\r")) {
   throw new Error("out-of-office reply must be a single line");
 }
 
 mkdirSync("/output", { recursive: true });
-writeFileSync("/output/entry.txt", REPLY, "utf8");
+writeFileSync("/output/entry.txt", entry, "utf8");
+console.log(`${entry} (${charCount} chars)`);
